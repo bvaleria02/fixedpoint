@@ -6,6 +6,7 @@
 fixed32_t  fixedMod32( fixed32_t x,  fixed32_t mod){
 	// Special case: mod = 0 returns 0
 	if(mod == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
 		return F32_ZERO;
 	}
 	
@@ -51,6 +52,7 @@ ufixed32_t ufixedMod32(ufixed32_t x, ufixed32_t mod){
 fixed64_t  fixedMod64( fixed64_t x,  fixed64_t mod){
 	// Special case: mod = 0 returns 0
 	if(mod == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
 		return F64_ZERO;
 	}
 	

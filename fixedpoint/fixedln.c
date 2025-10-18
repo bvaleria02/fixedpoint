@@ -1,8 +1,11 @@
 #include "fixedpoint.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "fixedconstants.h"
 #include "utils/fixedlimits.h"
+
+#define F64_LN_DISABLE_NEWTON 30
 
 fixed32_t abstractLog232(ufixed32_t x){
 	uint8_t rawShift = getBiggestOne32(x);
@@ -59,7 +62,7 @@ fixed32_t abstractLog232(ufixed32_t x){
 		}
 	}
 
-	fixed32_t decimalPart = ufixedMul32(acc1, INV_LN_2_F32);
+	fixed32_t decimalPart = ufixedMul32(acc1, F32_INV_LN_2);
 	result = fixedAdd32(result, decimalPart);
 	return result;
 }
@@ -119,13 +122,43 @@ fixed64_t abstractLog264(ufixed64_t x){
 		}
 	}
 
-	fixed64_t decimalPart = ufixedMul64(acc1, INV_LN_2_F64);
+	fixed64_t decimalPart = ufixedMul64(acc1, F64_INV_LN_2);
 	result = fixedAdd64(result, decimalPart);
 	return result;
 }
 
+fixed32_t newtonIterLog232(ufixed32_t x, fixed32_t y){
+	/*
+		y_n+1 = y_n - (1 / ln(2)) * (1 - x * 2^-y)
+
+		y_n+1 = z;
+		y_n   = y
+		2^-x  = exp(-x * ln(2))
+	*/
+
+	fixed32_t z;
+
+	// -y
+	z = fixedNeg32(y);
+	// -y * ln(2)
+	z = fixedMul32(z, F32_LN_2);
+	// exp^(-y * ln(2))
+	z = fixedExp32(z);
+	// x * exp...
+	z = fixedMul32(z, x);
+	// 1 - x * exp...
+	z = F32_ONE - z;
+	// (1/ln(2)) * (1 - x * exp...)
+	z = fixedMul32(z, F32_INV_LN_2);
+	// y - (1/ln(2)) * (1 - x * exp...)
+	z = y - z;
+
+	return z;
+}
+
 fixed32_t abstractLog232_new(ufixed32_t x){
 	if(x == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
 		return F32_ZERO;
 	}
 
@@ -164,11 +197,44 @@ fixed32_t abstractLog232_new(ufixed32_t x){
 	
 	y = y + convertIntToF32(exponent, 0);
 
+	y = newtonIterLog232(x, y);
+
 	return y;
 }
 
+fixed64_t newtonIterLog264(ufixed64_t x, fixed64_t y){
+	/*
+		y_n+1 = y_n - (1 / ln(2)) * (1 - x * 2^-y)
+
+		y_n+1 = z;
+		y_n   = y
+		2^-x  = exp(-x * ln(2))
+	*/
+
+	fixed64_t z;
+
+	// -y
+	z = fixedNeg64(y);
+	// -y * ln(2)
+	z = fixedMul64(z, F64_LN_2);
+	// exp^(-y * ln(2))
+	z = fixedExp64(z);
+	// x * exp...
+	z = fixedMul64(z, x);
+	// 1 - x * exp...
+	z = F64_ONE - z;
+	// (1/ln(2)) * (1 - x * exp...)
+	z = fixedMul64(z, F64_INV_LN_2);
+	// y - (1/ln(2)) * (1 - x * exp...)
+	z = y - z;
+
+	return z;
+}
+
+// Average: e_r = 1.63e-3
 fixed64_t abstractLog264_new(ufixed64_t x){
 	if(x == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
 		return F64_ZERO;
 	}
 
@@ -207,12 +273,18 @@ fixed64_t abstractLog264_new(ufixed64_t x){
 	
 	y = y + convertIntToF64(exponent, 0);
 
+	// Newton iter disabled for exponents lower than -30 and higher than 30 due to
+	// loss of precision, overflow and underflow
+	if(abs(exponent) < F64_LN_DISABLE_NEWTON){
+		y = newtonIterLog264(x, y);
+	}
+
 	return y;
 }
 
 fixed32_t abstractLn32(ufixed32_t x){
 	fixed32_t y = abstractLog232_new(x);
-	y = fixedMul32(y, LN_2_F32);
+	y = fixedMul32(y, F32_LN_2);
 	return y;
 }
 
@@ -224,7 +296,7 @@ fixed32_t abstractLog1032(ufixed32_t x){
 
 fixed64_t abstractLn64(ufixed64_t x){
 	fixed64_t y = abstractLog264_new(x);
-	y = fixedMul64(y, LN_2_F64);
+	y = fixedMul64(y, F64_LN_2);
 	return y;
 }
 
@@ -236,6 +308,7 @@ fixed64_t abstractLog1064(ufixed64_t x){
 
 fixed32_t fixedLn32(fixed32_t x){
 	if(x <= 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	
@@ -248,6 +321,7 @@ ufixed32_t ufixedLn32(ufixed32_t x){
 
 fixed64_t fixedLn64(fixed64_t x){
 	if(x <= 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	
@@ -260,6 +334,7 @@ ufixed64_t ufixedLn64(ufixed64_t x){
 
 fixed32_t fixedLog232(fixed32_t x){
 	if(x <= 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	
@@ -272,6 +347,7 @@ ufixed32_t ufixedLog232(ufixed32_t x){
 
 fixed64_t fixedLog264(fixed64_t x){
 	if(x <= 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	
@@ -284,6 +360,7 @@ ufixed64_t ufixedLog264(ufixed64_t x){
 
 fixed32_t fixedLog1032(fixed32_t x){
 	if(x <= 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	
@@ -296,6 +373,7 @@ ufixed32_t ufixedLog1032(ufixed32_t x){
 
 fixed64_t fixedLog1064(fixed64_t x){
 	if(x <= 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	

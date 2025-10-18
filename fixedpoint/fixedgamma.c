@@ -51,7 +51,8 @@ const ufixed64_t gammaF64[F64_GAMMA_COUNT] = {
 ufixed32_t ufixedGamma32(ufixed32_t x){
 	// Special case: Γ(0) is undefined, returning max value (I32_MANTISSA = 0x7FFFFFFF)
 	if(x == F32_ZERO){
-		return I32_MANTISSA;
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F32_MAX_VALUE;
 	}
 	
 	ufixed32_t decimal = x & F32_LMASK;

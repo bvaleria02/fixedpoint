@@ -4,6 +4,11 @@
 #include "fixedconstants.h"
 
 fixed32_t fixedPow32(fixed32_t x, uint16_t n){
+	if(x == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F32_ONE;
+	}
+
 	uint16_t iterCount = n >> 1;
 	fixed32_t acc = F32_ONE;
 
@@ -19,6 +24,11 @@ fixed32_t fixedPow32(fixed32_t x, uint16_t n){
 }
 
 ufixed32_t ufixedPow32(ufixed32_t x, uint16_t n){
+	if(x == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F32_ONE;
+	}
+
 	uint16_t iterCount = n >> 1;
 	ufixed32_t acc = F32_ONE;
 
@@ -34,6 +44,11 @@ ufixed32_t ufixedPow32(ufixed32_t x, uint16_t n){
 }
 
 fixed64_t fixedPow64(fixed64_t x, uint16_t n){
+	if(x == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F64_ONE;
+	}
+
 	uint16_t iterCount = n >> 1;
 	fixed64_t acc = F64_ONE;
 
@@ -49,6 +64,11 @@ fixed64_t fixedPow64(fixed64_t x, uint16_t n){
 }
 
 ufixed64_t ufixedPow64(ufixed64_t x, uint16_t n){
+	if(x == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F64_ONE;
+	}
+
 	uint16_t iterCount = n >> 1;
 	ufixed64_t acc = F64_ONE;
 
@@ -64,6 +84,11 @@ ufixed64_t ufixedPow64(ufixed64_t x, uint16_t n){
 }
 
 fixed32_t  fixedPowf32( fixed32_t x,  fixed32_t n){
+	if(x == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F32_ONE;
+	}
+
 	fixed32_t exponent;
 
 	exponent = fixedLn32(x);
@@ -75,6 +100,11 @@ fixed32_t  fixedPowf32( fixed32_t x,  fixed32_t n){
 }
 
 ufixed32_t ufixedPowf32(ufixed32_t x, ufixed32_t n){
+	if(x == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F32_ONE;
+	}
+
 	ufixed32_t exponent;
 
 	exponent = ufixedLn32(x);
@@ -86,6 +116,11 @@ ufixed32_t ufixedPowf32(ufixed32_t x, ufixed32_t n){
 }
 
  fixed64_t  fixedPowf64( fixed64_t x,  fixed64_t n){
+	if(x == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F64_ONE;
+	}
+
 	fixed64_t exponent;
 
 	exponent = fixedLn64(x);
@@ -97,6 +132,11 @@ ufixed32_t ufixedPowf32(ufixed32_t x, ufixed32_t n){
 }
 
 ufixed64_t ufixedPowf64(ufixed64_t x, ufixed64_t n){
+	if(x == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F64_ONE;
+	}
+
 	ufixed64_t exponent;
 
 	exponent = ufixedLn64(x);

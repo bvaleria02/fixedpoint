@@ -92,6 +92,7 @@ ufixed32_t ufixedRSqrt32(ufixed32_t x){
 	// Special case, 0 or below. 1/sqrt(0) is not defined
 	// neither 1/sqrt(x) where x is negative
 	if(x <= F32_ZERO){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return F32_ZERO;
 	 }
 
@@ -341,6 +342,7 @@ ufixed32_t ufixedRSqrt32(ufixed32_t x){
 
 fixed32_t fixedRSqrt32(fixed32_t x){
 	if(x <= F32_ZERO){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return F32_ZERO;
 	}
 
@@ -360,6 +362,7 @@ ufixed64_t ufixedRSqrt64(ufixed64_t x){
 	// Special case, 0 or below. 1/sqrt(0) is not defined
 	// neither 1/sqrt(x) where x is negative
 	if(x <= F64_ZERO){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return F64_ZERO;
 	 }
 
@@ -612,6 +615,7 @@ ufixed64_t ufixedRSqrt64(ufixed64_t x){
 
 fixed64_t fixedRSqrt64(fixed64_t x){
 	if(x <= F64_ZERO){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return F64_ZERO;
 	}
 

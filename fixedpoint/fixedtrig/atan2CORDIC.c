@@ -19,6 +19,7 @@ fixed32_t abstractAtan2CORDIC32(ufixed32_t y, ufixed32_t x){
 
 	if(x == 0 && y == 0){
 		// undefined case, usign 0 as a failback.
+		fixedSetErrno(FP_ERROR_ZERO);
 		return 0;
 	}
 
@@ -70,6 +71,7 @@ fixed64_t abstractAtan2CORDIC64(ufixed64_t y, ufixed64_t x){
 
 	if(x == 0 && y == 0){
 		// undefined case, usign 0 as a failback.
+		fixedSetErrno(FP_ERROR_ZERO);
 		return 0;
 	}
 

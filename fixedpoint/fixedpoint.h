@@ -45,6 +45,16 @@
 #define I64_SIGN		0x8000000000000000
 #define I64_MANTISSA	0x7FFFFFFFFFFFFFFF
 
+#define F32_MAX_VALUE	0x7FFFFFFF
+#define UF32_MAX_VALUE	0xFFFFFFFF
+#define F64_MAX_VALUE	0x7FFFFFFFFFFFFFFF
+#define UF64_MAX_VALUE	0xFFFFFFFFFFFFFFFF
+
+#define F32_MIN_VALUE	0x80000000
+#define UF32_MIN_VALUE	0x00000000
+#define F64_MIN_VALUE	0x8000000000000000
+#define UF64_MIN_VALUE	0x0000000000000000
+
 // 2 << 6 = 64
 #define U64_SIZE		6
 #define U64_MASK		0x3F
@@ -59,10 +69,10 @@
 #define SQRT_S64_MAX 0x0000b504f333f92b
 #define SQRT_U64_MAX 0x0001000000000000
 
-#define LN_2_F32 0x0000b172
-#define LN_2_F64 0x00000000b17217f7
-#define INV_LN_2_F32 0x00017154
-#define INV_LN_2_F64 0x0000000171547652
+#define F32_LN_2 0x0000b172
+#define F64_LN_2 0x00000000b17217f7
+#define F32_INV_LN_2 0x00017154
+#define F64_INV_LN_2 0x0000000171547652
 #define F32_LOG_10_2 0x00004d10
 #define F64_LOG_10_2 0x000000004d104d42
 
@@ -118,7 +128,16 @@ typedef uint64_t ufixed64_t;
 typedef enum _FP_ERROR_ {
 	FP_NO_ERROR 		= 0,
 	FP_ERROR_NULLPTR	= 1,
+	FP_ERROR_OUTOFRANGE	= 2,
+	FP_ERROR_NEGATIVE	= 3,
+	FP_ERROR_OVERFLOW	= 4,
+	FP_ERROR_UNDERFLOW	= 5,
+	FP_ERROR_INFINITY	= 6,
+	FP_ERROR_ZERO		= 7
 } FPErrorCode;
+
+typedef uint8_t FPErrno;
+extern _Thread_local FPErrno fp_errno;
 
 // src/fixedpoint/fixedconstans.c
 //#include "fixedconstants.h"
@@ -163,6 +182,10 @@ ufixed64_t ufixedAdd64(ufixed64_t x1, ufixed64_t x2);
  fixed64_t  fixedAddScalar64( fixed64_t x1,  int64_t x2, int8_t scale);
 ufixed32_t ufixedAddScalar32(ufixed32_t x1, uint32_t x2, int8_t scale);
 ufixed64_t ufixedAddScalar64(ufixed64_t x1, uint64_t x2, int8_t scale);
+ fixed32_t  fixedAddOF32( fixed32_t x1,  fixed32_t x2);
+ fixed64_t  fixedAddOF64( fixed64_t x1,  fixed64_t x2);
+ufixed32_t ufixedAddOF32(ufixed32_t x1, ufixed32_t x2);
+ufixed64_t ufixedAddOF64(ufixed64_t x1, ufixed64_t x2);
 
 // src/fixedpoint/fixedsub.c
  fixed32_t  fixedSub32( fixed32_t x1,  fixed32_t x2);
@@ -173,6 +196,10 @@ ufixed64_t ufixedSub64(ufixed64_t x1, ufixed64_t x2);
  fixed64_t  fixedSubScalar64( fixed64_t x1,  int64_t x2, int8_t scale);
 ufixed32_t ufixedSubScalar32(ufixed32_t x1, uint32_t x2, int8_t scale);
 ufixed64_t ufixedSubScalar64(ufixed64_t x1, uint64_t x2, int8_t scale);
+ fixed32_t  fixedSubUF32( fixed32_t x1,  fixed32_t x2);
+ fixed64_t  fixedSubUF64( fixed64_t x1,  fixed64_t x2);
+ufixed32_t ufixedSubUF32(ufixed32_t x1, ufixed32_t x2);
+ufixed64_t ufixedSubUF64(ufixed64_t x1, ufixed64_t x2);
 
 // src/fixedpoint/fixedmul.c
  fixed32_t  fixedMul32( fixed32_t x1,  fixed32_t x2);
@@ -317,6 +344,18 @@ ufixed32_t ufixedCSerp32(ufixed32_t y0, ufixed32_t y1, ufixed32_t y2, ufixed32_t
  fixed64_t  fixedCSerp64( fixed64_t y0,  fixed64_t y1,  fixed64_t y2,  fixed64_t y3, ufixed64_t x);
 ufixed64_t ufixedCSerp64(ufixed64_t y0, ufixed64_t y1, ufixed64_t y2, ufixed64_t y3, ufixed64_t x);
 
+// src/fixedpoint/fixedlaerp.c
+ fixed32_t  fixedLaerp32( fixed32_t y0,  fixed32_t y1,  fixed32_t y2,  fixed32_t y3, ufixed32_t x);
+ufixed32_t ufixedLaerp32(ufixed32_t y0, ufixed32_t y1, ufixed32_t y2, ufixed32_t y3, ufixed32_t x);
+ fixed64_t  fixedLaerp64( fixed64_t y0,  fixed64_t y1,  fixed64_t y2,  fixed64_t y3, ufixed64_t x);
+ufixed64_t ufixedLaerp64(ufixed64_t y0, ufixed64_t y1, ufixed64_t y2, ufixed64_t y3, ufixed64_t x);
+
+// src/fixedpoint/fixednerp.c
+ fixed32_t  fixedNerp32( fixed32_t y0,  fixed32_t y1,  fixed32_t y2,  fixed32_t y3,  fixed32_t y4,  fixed32_t y5,  fixed32_t x);
+ufixed32_t ufixedNerp32(ufixed32_t y0, ufixed32_t y1, ufixed32_t y2, ufixed32_t y3, ufixed32_t y4, ufixed32_t y5, ufixed32_t x);
+ fixed64_t  fixedNerp64( fixed64_t y0,  fixed64_t y1,  fixed64_t y2,  fixed64_t y3,  fixed64_t y4,  fixed64_t y5,  fixed64_t x);
+ufixed64_t ufixedNerp64(ufixed64_t y0, ufixed64_t y1, ufixed64_t y2, ufixed64_t y3, ufixed64_t y4, ufixed64_t y5, ufixed64_t x);
+
 // src/fixedpoint/fixedmod.c
  fixed32_t  fixedMod32( fixed32_t x,  fixed32_t mod);
 ufixed32_t ufixedMod32(ufixed32_t x, ufixed32_t mod);
@@ -411,6 +450,12 @@ ufixed32_t ufixedMagh32(ufixed32_t x, ufixed32_t y);
  fixed64_t  fixedMagh64( fixed64_t x,  fixed64_t y);
 ufixed64_t ufixedMagh64(ufixed64_t x, ufixed64_t y);
 
+// src/fixedpoint/fixedsinc.c
+ fixed32_t  fixedSinc32( fixed32_t x);
+ufixed32_t ufixedSinc32(ufixed32_t x);
+ fixed64_t  fixedSinc64( fixed64_t x);
+ufixed64_t ufixedSinc64(ufixed64_t x);
+
 // src/fixedpoint/fixedutils.c
 uint8_t  fixedIsNeg32( fixed32_t x);
 uint8_t ufixedIsNeg32(ufixed32_t x);
@@ -442,5 +487,10 @@ FPErrorCode  fixedModf32(   fixed32_t x,  fixed32_t *integer,   fixed32_t *decim
 FPErrorCode ufixedModf32(  ufixed32_t x, ufixed32_t *integer,  ufixed32_t *decimal);
 FPErrorCode  fixedModf64(   fixed64_t x,  fixed64_t *integer,   fixed64_t *decimal);
 FPErrorCode ufixedModf64(  ufixed64_t x, ufixed64_t *integer,  ufixed64_t *decimal);
+
+// src/fixedpoint/fixederrno.c
+FPErrorCode fixedGetErrno();
+void fixedClearErrno();
+void fixedSetErrno(FPErrorCode code);
 
 #endif // FIXEDPOINT_H

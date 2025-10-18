@@ -6,11 +6,23 @@
 #include "multin.h"
 
 fixed32_t fixedDiv32(fixed32_t x1, fixed32_t x2){
-	return (((int64_t)x1 * F32_SCALE)/ (int32_t)x2);
+	if(x2 == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F32_MAX_VALUE;
+	}
+
+	fixed32_t y = (((int64_t)x1 * F32_SCALE)/ (int32_t)x2);
+	return y;
 }
 
 ufixed32_t ufixedDiv32(ufixed32_t x1, ufixed32_t x2){
-	return (((uint64_t)x1) * F32_SCALE) / ((uint64_t) x2);
+	if(x2 == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return UF32_MAX_VALUE;
+	}
+
+	ufixed32_t y = (((uint64_t)x1) * F32_SCALE) / ((uint64_t) x2);
+	return y;
 }
 
 uint8_t canFastPath(ufixed64_t x1, ufixed64_t x2, ufixed64_t *r){
@@ -75,6 +87,11 @@ uint8_t canFastPath(ufixed64_t x1, ufixed64_t x2, ufixed64_t *r){
 ufixed64_t ufixedDiv64(ufixed64_t x1, ufixed64_t x2){
 	ufixed64_t r = 0;
 
+	if(x2 == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return UF64_MAX_VALUE;
+	}
+
 	if(canFastPath(x1, x2, &r)){
 		return r;
 	}
@@ -122,6 +139,11 @@ ufixed64_t ufixedDiv64(ufixed64_t x1, ufixed64_t x2){
 
 fixed64_t fixedDiv64(fixed64_t x1, fixed64_t x2){
 	uint8_t sign = 0;
+
+	if(x2 == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F64_MAX_VALUE;
+	}
 
 	if(x1 < F64_ZERO){
 		x1 = fixedNeg64(x1);

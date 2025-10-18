@@ -130,6 +130,10 @@ ufixed64_t ufixedCeil64(ufixed64_t x){
 }
 
 fixed32_t  fixedRound32( fixed32_t x, int8_t exp){
+	if(exp >= F32_RSHIFT || exp < -(F32_RSHIFT)){
+		fixedSetErrno(FP_ERROR_OUTOFRANGE);
+	}
+
 	uint8_t sign = 0;
 	if(x < F32_ZERO){
 		sign = 1;
@@ -146,6 +150,10 @@ fixed32_t  fixedRound32( fixed32_t x, int8_t exp){
 }
 
 ufixed32_t ufixedRound32(ufixed32_t x, int8_t exp){
+	if(exp > F32_RSHIFT || exp < -(F32_RSHIFT)){
+		fixedSetErrno(FP_ERROR_OUTOFRANGE);
+	}
+
 	ufixed32_t mask = F32_ONE;
 
 	if(exp > 0){
@@ -168,6 +176,10 @@ ufixed32_t ufixedRound32(ufixed32_t x, int8_t exp){
 }
 
 fixed64_t  fixedRound64( fixed64_t x, int8_t exp){
+	if(exp >= F64_RSHIFT || exp < -(F64_RSHIFT)){
+		fixedSetErrno(FP_ERROR_OUTOFRANGE);
+	}
+
 	uint8_t sign = 0;
 	if(x < F64_ZERO){
 		sign = 1;
@@ -184,6 +196,10 @@ fixed64_t  fixedRound64( fixed64_t x, int8_t exp){
 }
 
 ufixed64_t ufixedRound64(ufixed64_t x, int8_t exp){
+	if(exp > F64_RSHIFT || exp < -(F64_RSHIFT)){
+		fixedSetErrno(FP_ERROR_OUTOFRANGE);
+	}
+
 	ufixed64_t mask = F64_ONE;
 
 	if(exp > 0){

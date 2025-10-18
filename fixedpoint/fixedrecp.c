@@ -17,7 +17,8 @@
 
 ufixed32_t ufixedRecp32(ufixed32_t x){
 	if(x == F32_ZERO){
-		return F32_ZERO;
+		fixedSetErrno(FP_ERROR_ZERO);
+		return UF32_MAX_VALUE;
 	}
 
 	/*
@@ -98,6 +99,11 @@ ufixed32_t ufixedRecp32(ufixed32_t x){
 }
 
 fixed32_t fixedRecp32(fixed32_t x){
+	if(x == F32_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F32_MAX_VALUE;
+	}
+
 	uint8_t sign = 0;
 	if(x < F32_ZERO){
 		sign = 1;
@@ -114,7 +120,8 @@ fixed32_t fixedRecp32(fixed32_t x){
 
 ufixed64_t ufixedRecp64(ufixed64_t x){
 	if(x == F64_ZERO){
-		return F64_ZERO;
+		fixedSetErrno(FP_ERROR_ZERO);
+		return UF64_MAX_VALUE;
 	}
 
 	/*
@@ -195,6 +202,11 @@ ufixed64_t ufixedRecp64(ufixed64_t x){
 }
 
 fixed64_t fixedRecp64(fixed64_t x){
+	if(x == F64_ZERO){
+		fixedSetErrno(FP_ERROR_ZERO);
+		return F64_MAX_VALUE;
+	}
+
 	uint8_t sign = 0;
 	if(x < F64_ZERO){
 		sign = 1;

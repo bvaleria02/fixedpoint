@@ -88,6 +88,7 @@ ufixed64_t abstractSqrt64(ufixed64_t x){
 
 #define SQRT_ITER 2
 #define F32_SQRT_NO_ITER 11
+#define F64_SQRT_NO_ITER 26
 
 #define F32_SQRT_CORRECTION_A 0x0000030A
 #define F32_SQRT_CORRECTION_B 0x00000441
@@ -97,6 +98,7 @@ ufixed64_t abstractSqrt64(ufixed64_t x){
 
 ufixed32_t abstractSqrt32_new(ufixed32_t x){
 	if(x == F32_ZERO){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 
@@ -179,8 +181,94 @@ ufixed32_t abstractSqrt32_new(ufixed32_t x){
 	return y;
 }
 
+ufixed64_t abstractSqrt64_new(ufixed64_t x){
+	if(x == F64_ZERO){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
+		return 0;
+	}
+
+	int8_t exponent = getExponent64(x);
+	ufixed64_t y = x;
+
+	if(exponent > 0){
+		y = x >> (exponent & ~(0x1));
+	} else if (exponent < 0){
+		y = x << ((abs(exponent)+1) & ~(0x1));
+	}
+	
+	// y between [1, 4[
+	//printf("In: %lf\texp: %i\tOut: %lf\n", convertUF32ToDouble(x), exponent, convertUF32ToDouble(y));
+	if(y > (F64_ONE << 1)){
+		// Sector B: y ∈ [2, 4[
+		// y = sqrt(2) + (y-2)*(2 - sqrt(2))/2 + qB
+
+		// y - 2
+		y = y - (F64_ONE << 1);
+
+		// (2 - sqrt(2))/2 = 0.2928932188135
+		// 75/256 = 0.29296875
+		y = (y << 6) + (y << 3) + (y << 1) + y;
+		y = y >> 8;
+
+		// y = sqrt(2) + (y-2)*75/256
+		y = F64_SQRT_2 + y;
+
+		// y = sqrt(2) + (y-2)*75/256 + qB
+		y = y + F64_SQRT_CORRECTION_B;
+	} else {
+		// Sector A: y ∈ [1, 2[
+		// y = 1 + (y-1)*(sqrt(2) - 1) + qA
+
+		// y - 1
+		y = y - F64_ONE;
+
+		// (sqrt(2) - 1) = 0.4142135623731
+		// 53/128 = 0.4140625
+		y = (y << 5) + (y << 4) + (y << 2) + y;
+		y = y >> 7;
+
+		// y = 1 + (y-1)*53/128
+		y = F64_ONE + y;
+
+		// y = 1 + (y-1)*53/128 + qA
+		y = y + F64_SQRT_CORRECTION_A;
+	}
+
+	if(exponent > 0){
+		y = y << (exponent >> 1);
+	} else if (exponent < 0){
+		y = y >> ((abs(exponent)+1) >> 1);
+	}
+
+	/*
+		f(y) 	= y^2 - x
+		f'(y)	= 2y
+
+		y_n+1	= y_n - (y_n^2 - x)/(2y)
+		y_n+1	= y_n - y_n/2 + x/2y
+		y_n+1	= (1/2)*y_n + x/2y
+	*/
+
+	ufixed64_t reciprocal;
+
+	// Iterations are disabled for x > 2048.0 due to
+	// loss of precision and overflow. 
+	int8_t iterCount = SQRT_ITER;
+	if(abs(exponent) > F64_SQRT_NO_ITER){
+		iterCount = 0;
+	}
+
+	for(int8_t i = 0; i < iterCount; i++){
+		reciprocal = ufixedRecp64(y);
+		y = (y >> 1) + ufixedMul64(x, reciprocal >> 1);
+	}
+
+	return y;
+}
+
 fixed32_t fixedSqrt32(fixed32_t x){
 	if(x < 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	
@@ -193,12 +281,13 @@ ufixed32_t ufixedSqrt32(ufixed32_t x){
 
 fixed64_t fixedSqrt64(fixed64_t x){
 	if(x < 0){
+		fixedSetErrno(FP_ERROR_NEGATIVE);
 		return 0;
 	}
 	
-	return abstractSqrt64(x);
+	return abstractSqrt64_new(x);
 }
 
 ufixed64_t ufixedSqrt64(ufixed64_t x){
-	return abstractSqrt64(x);
+	return abstractSqrt64_new(x);
 }

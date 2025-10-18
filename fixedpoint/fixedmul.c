@@ -5,11 +5,21 @@
 #include "multin.h"
 
 fixed32_t fixedMul32(fixed32_t x1, fixed32_t x2){
-	return ((int64_t)x1 * (int64_t)x2) / F32_SCALE;
+	int64_t y = ((int64_t)x1 * (int64_t)x2) >> F32_RSHIFT;
+	if(y > UF32_MAX_VALUE){
+		fixedSetErrno(FP_ERROR_OVERFLOW);
+	}
+
+	return (fixed32_t) y;
 }
 
 ufixed32_t ufixedMul32(ufixed32_t x1, ufixed32_t x2){
-	return ((uint64_t)x1 * (uint64_t)x2) / F32_SCALE;
+	uint64_t y =  ((uint64_t)x1 * (uint64_t)x2) >> F32_RSHIFT;
+	if(y > UF32_MAX_VALUE){
+		fixedSetErrno(FP_ERROR_OVERFLOW);
+	}
+
+	return (ufixed32_t) y;
 }
 
 fixed64_t fixedMul64(fixed64_t x1, fixed64_t x2){

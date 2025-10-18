@@ -18,6 +18,10 @@ fixed32_t abstractCubicSplineInterpolation32(fixed32_t y0, fixed32_t y1, fixed32
 		y = 0.5 * (2y1 + (-y0 + y2)*x + (2y0 - 5y1 + 4y2 - y3)*x^2 + (-y0 + 3y1 - 3y2 +y2)*x^3)
 	*/
 
+	if(fixedAbs32(x) > F32_ONE){
+		fixedSetErrno(FP_ERROR_OUTOFRANGE);
+	}
+
 	fixed32_t x2 = fixedMul32(x,  x);
 	fixed32_t x3 = fixedMul32(x2, x);
 	

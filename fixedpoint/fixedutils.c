@@ -145,6 +145,7 @@ FPErrorCode  fixedFrexp32(  fixed32_t x,  int8_t *exponent,  fixed32_t *mantissa
 
 FPErrorCode ufixedFrexp32( ufixed32_t x, int8_t *exponent, ufixed32_t *mantissa){
 	if(exponent == NULL && mantissa == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 
@@ -195,6 +196,7 @@ FPErrorCode  fixedFrexp64(  fixed64_t x,  int8_t *exponent,  fixed64_t *mantissa
 
 FPErrorCode ufixedFrexp64( ufixed64_t x, int8_t *exponent, ufixed64_t *mantissa){
 	if(exponent == NULL && mantissa == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 
@@ -226,6 +228,7 @@ FPErrorCode ufixedFrexp64( ufixed64_t x, int8_t *exponent, ufixed64_t *mantissa)
 
 FPErrorCode  fixedFrexp232( fixed32_t x, int8_t *exponent,  fixed32_t *mantissa){
 	if(exponent == NULL && mantissa == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 
@@ -256,6 +259,7 @@ FPErrorCode  fixedFrexp232( fixed32_t x, int8_t *exponent,  fixed32_t *mantissa)
 
 FPErrorCode ufixedFrexp232(ufixed32_t x, int8_t *exponent, ufixed32_t *mantissa){
 	if(exponent == NULL && mantissa == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 
@@ -285,6 +289,7 @@ FPErrorCode ufixedFrexp232(ufixed32_t x, int8_t *exponent, ufixed32_t *mantissa)
 
 FPErrorCode  fixedFrexp264( fixed64_t x, int8_t *exponent,  fixed64_t *mantissa){
 	if(exponent == NULL && mantissa == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 
@@ -314,6 +319,7 @@ FPErrorCode  fixedFrexp264( fixed64_t x, int8_t *exponent,  fixed64_t *mantissa)
 
 FPErrorCode ufixedFrexp264(ufixed64_t x, int8_t *exponent, ufixed64_t *mantissa){
 	if(exponent == NULL && mantissa == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 
@@ -362,6 +368,7 @@ FPErrorCode  fixedModf32(   fixed32_t x,  fixed32_t *integer,   fixed32_t *decim
 
 FPErrorCode ufixedModf32(  ufixed32_t x, ufixed32_t *integer,  ufixed32_t *decimal){
 	if(integer == NULL && decimal == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 
@@ -397,6 +404,7 @@ FPErrorCode  fixedModf64(   fixed64_t x,  fixed64_t *integer,   fixed64_t *decim
 
 FPErrorCode ufixedModf64(  ufixed64_t x, ufixed64_t *integer,  ufixed64_t *decimal){
 	if(integer == NULL && decimal == NULL){
+		fixedSetErrno(FP_ERROR_NULLPTR);
 		return FP_ERROR_NULLPTR;
 	}
 

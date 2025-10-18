@@ -19,6 +19,7 @@ fixed32_t abstractAsin32CORDIC(fixed32_t x){
 
 	// Special case, asin(x) is undefined above x=1 and below x=-1
 	if(abs(x) > F32_ONE){
+		fixedSetErrno(FP_ERROR_OUTOFRANGE);
 		return F32_ERROR_VALUE;
 	}
 
@@ -66,6 +67,7 @@ fixed64_t abstractAsin64CORDIC(fixed64_t x){
 
 	// Special case, asin(x) is undefined above x=1 and below x=-1
 	if(x > F64_ONE || x < fixedNeg64(F64_ONE)){
+		fixedSetErrno(FP_ERROR_OUTOFRANGE);
 		return F64_ERROR_VALUE;
 	}
 
